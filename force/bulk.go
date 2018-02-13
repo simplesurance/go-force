@@ -446,9 +446,9 @@ func (b *Batch) Request() ([]BatchRequest, error) {
 
 // BatchError as represented within the API.
 type BatchError struct {
-	Fields     string `json:"fields"`
-	Message    string `json:"message"`
-	StatusCode string `json:"statusCode"`
+	Fields     []string `json:"fields"`
+	Message    string   `json:"message"`
+	StatusCode string   `json:"statusCode"`
 }
 
 // BatchResult as represented within the API.
