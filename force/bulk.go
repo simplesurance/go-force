@@ -427,6 +427,23 @@ func (b *Batch) Info() (err error) {
 	return nil
 }
 
+// BatchRequest is a json represantion of the request.
+type BatchRequest map[string]interface{}
+
+// Request gets the request of a batch.
+func (b *Batch) Request() ([]BatchRequest, error) {
+	uri := fmt.Sprintf(`/services/async/%.1f/job/%s/batch/%s/request`, b.APIVersion, b.JobID, b.ID)
+
+	batchRequest := []BatchRequest{}
+
+	err := b.API.Get(uri, nil, nil, &batchRequest)
+	if err != nil {
+		return batchRequest, fmt.Errorf("Bulk API: Can't retrieve Request for Batch '%s': %s", b.ID, err)
+	}
+
+	return batchRequest, nil
+}
+
 // BatchError as represented within the API.
 type BatchError struct {
 	Fields     string `json:"fields"`
@@ -443,10 +460,12 @@ type BatchResult struct {
 }
 
 // Result gets results of a batch that has completed processing.
-func (b *Batch) Result() (batchResult *BatchResult, err error) {
+func (b *Batch) Result() ([]BatchResult, error) {
 	uri := fmt.Sprintf(`/services/async/%.1f/job/%s/batch/%s/result`, b.APIVersion, b.JobID, b.ID)
 
-	err = b.API.Get(uri, nil, nil, batchResult)
+	batchResult := []BatchResult{}
+
+	err := b.API.Get(uri, nil, nil, &batchResult)
 	if err != nil {
 		return batchResult, fmt.Errorf("Bulk API: Can't retrieve Result for Batch '%s': %s", b.ID, err)
 	}
