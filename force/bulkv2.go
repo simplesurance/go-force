@@ -1,4 +1,8 @@
 //
+// Salesforce BULK API V 2.0 is a version of the Buklk API that uses REST
+// endpoints and only accepts CSV data. It is an alternative to the normal
+// API and misses many features.
+//
 // This package has not yet been extensively tested against salesforce api.
 // i wrote it as a sane replacement for the current bulk api, this version uses
 // Salesforce BULK API V 2.0 which runs against the Salesforce REST API and
@@ -12,7 +16,7 @@ import (
 	"strings"
 )
 
-// MaxBatchv2SizeMiB is the maimum a batch can hold
+// MaxBatchv2SizeMiB is the maximum a batch can hold
 const MaxBatchv2SizeMiB = 1024 * 1024 * 100
 
 // SaveBatchv2SizeMiB a bit smaller than MaxBatchSizeMiB, to be on the save side

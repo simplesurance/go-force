@@ -1,3 +1,10 @@
+//
+// Salesforce BULK API is used to upload larger data sets, it supports CSV,
+// XML and JSON as input format. It consists of jobs which contain one ore more
+// data batches.
+//
+// Batches limits are not taken care of by the package, users are responsible
+// to check the MaxBatch constants against there batch contents
 package force
 
 import (
@@ -284,8 +291,6 @@ func (forceAPI *API) CreateBulkJob(sObjectname string, sObjectExtID string, cont
 // The request body contains a list of records for processing.
 func (b *BulkJob) AddBatch(batch []byte) (*Batch, error) {
 	uri := fmt.Sprintf(`/services/async/%.1f/job/%s/batch`, b.APIVersion, b.ID)
-
-	//headers := http.Header{"Content-Type": []string{"text/csv"}}
 
 	var resp Batch
 	err := b.API.Post(uri, nil, nil, string(batch), &resp)
