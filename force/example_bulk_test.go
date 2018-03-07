@@ -98,8 +98,10 @@ func Example_Bulk() {
 				log.Errorf("some records failed during processing: %d",
 					job.NumberRecordsFailed)
 			}
+			break
 		case force.BatchStateFailed:
 			log.Error("job failed")
+			break
 		}
 
 		time.Sleep(time.Second * 15)
