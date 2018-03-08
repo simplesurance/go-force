@@ -270,7 +270,7 @@ type BulkJob struct {
 func (forceAPI *API) CreateBulkJob(sObjectname string, sObjectExtID string, contentType ContentType, operation Operation, mode ConcurrencyMode) (*BulkJob, error) {
 	uri := fmt.Sprintf(`/services/async/%s/job`, strings.TrimPrefix(forceAPI.apiVersion, `v`))
 
-	req := &Bulkv2JobReq{
+	req := &BulkJobReq{
 		ContentType:         contentType,
 		ExternalIdFieldName: sObjectExtID,
 		Object:              sObjectname,
