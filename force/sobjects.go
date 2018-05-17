@@ -159,6 +159,18 @@ func (forceAPI *API) UpsertSObjectStringByExternalID(object, extenalID, id, data
 	return
 }
 
+// UpsertSObjectStringByID performs an upsert using an
+// ID and the JSON string representation of an SObject.
+func (forceAPI *API) UpsertSObjectStringByID(object, ID, data string) (resp *SObjectResponse, err error) {
+
+	uri := strings.Replace(forceAPI.apiSObjects[object].URLs[rowTemplateKey], idKey, ID, 1)
+
+	resp = &SObjectResponse{}
+	err = forceAPI.Patch(uri, nil, nil, data, resp)
+
+	return
+}
+
 // DeleteSObjectByExternalID deletes an SObject by external ID.
 func (forceAPI *API) DeleteSObjectByExternalID(id string, in SObject) (err error) {
 	uri := fmt.Sprintf("%v/%v/%v", forceAPI.apiSObjects[in.APIName()].URLs[sObjectKey],
@@ -187,7 +199,7 @@ func (forceAPI *API) GetSObjectList(object string) ([]SObjectRecord, error) {
 	resp := &SObjectList{}
 
 	qry := fmt.Sprintf("SELECT Id, Name FROM %s", object)
-	err := forceAPI.Query(qry, nil,resp)
+	err := forceAPI.Query(qry, nil, resp)
 	if err != nil {
 		return nil, fmt.Errorf("Cannot get object list for '%s': %s", object, err)
 	}
