@@ -1,5 +1,4 @@
-//
-// Salesforce BULK API is used to upload larger data sets, it supports CSV,
+// Package force - Salesforce BULK API is used to upload larger data sets, it supports CSV,
 // XML and JSON as input format. It consists of jobs which contain one ore more
 // data batches.
 //
@@ -265,9 +264,34 @@ type BulkJob struct {
 	// AssignmentRuleId string `json:"assignmentRuleId,omitempty"` // null string
 }
 
+// BulkJober interface for BulkJob api
+type BulkJober interface {
+	// AddBatch adds a new batch to a job by sending a POST request to the following URI.
+	// The request body contains a list of records for processing.
+	AddBatch(batch []byte) (Batcher, error)
+
+	// Close the job, starts executing the batches.
+	Close() (err error)
+
+	// Abort the job.
+	Abort() (err error)
+
+	// Info of the current job.
+	Info() (err error)
+
+	// GetBatchesInfo gets information about all batches in a job.
+	GetBatchesInfo() (batchInfo *BulkJobBatches, err error)
+}
+
 // CreateBulkJob creates an Bulk API 2.0 Job.
 // sObjectExtID used for upsert and should be empty if not needed.
-func (forceAPI *API) CreateBulkJob(sObjectname string, sObjectExtID string, contentType ContentType, operation Operation, mode ConcurrencyMode) (*BulkJob, error) {
+func (forceAPI *API) CreateBulkJob(
+	sObjectname string,
+	sObjectExtID string,
+	contentType ContentType,
+	operation Operation,
+	mode ConcurrencyMode,
+) (BulkJober, error) {
 	uri := fmt.Sprintf(`/services/async/%s/job`, strings.TrimPrefix(forceAPI.apiVersion, `v`))
 
 	req := &BulkJobReq{
@@ -289,7 +313,7 @@ func (forceAPI *API) CreateBulkJob(sObjectname string, sObjectExtID string, cont
 
 // AddBatch adds a new batch to a job by sending a POST request to the following URI.
 // The request body contains a list of records for processing.
-func (b *BulkJob) AddBatch(batch []byte) (*Batch, error) {
+func (b *BulkJob) AddBatch(batch []byte) (Batcher, error) {
 	uri := fmt.Sprintf(`/services/async/%.1f/job/%s/batch`, b.APIVersion, b.ID)
 
 	var resp Batch
@@ -421,6 +445,24 @@ type Batch struct {
 	ApexProcessingTime      int64  `json:"apexProcessingTime,omitempty"`      // The number of milliseconds taken to process triggers and other processes related to the batch data.
 }
 
+// Batcher interface for Batch api
+type Batcher interface {
+	// Info gets information about an existing batch.
+	Info() (err error)
+
+	// Request gets the request of a batch.
+	Request() ([]BatchRequest, error)
+
+	// Result gets results of a batch that has completed processing.
+	Result() ([]BatchResult, error)
+
+	// GetState returns batch status
+	GetState() BatchState
+
+	// GetNumberRecordsFailed return number of failed records
+	GetNumberRecordsFailed() int
+}
+
 // Info gets information about an existing batch.
 func (b *Batch) Info() (err error) {
 	uri := fmt.Sprintf(`/services/async/%.1f/job/%s/batch/%s`, b.APIVersion, b.JobID, b.ID)
@@ -475,4 +517,14 @@ func (b *Batch) Result() ([]BatchResult, error) {
 		return batchResult, fmt.Errorf("Bulk API: Can't retrieve Result for Batch '%s': %s", b.ID, err)
 	}
 	return batchResult, nil
+}
+
+// GetState returns batch status
+func (b *Batch) GetState() BatchState {
+	return b.State
+}
+
+// GetNumberRecordsFailed return number of failed records
+func (b *Batch) GetNumberRecordsFailed() int {
+	return b.NumberRecordsFailed
 }
