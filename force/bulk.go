@@ -264,11 +264,11 @@ type BulkJob struct {
 	// AssignmentRuleId string `json:"assignmentRuleId,omitempty"` // null string
 }
 
-// BulkJobI interface for BulkJob api
-type BulkJobI interface {
+// BulkJober interface for BulkJob api
+type BulkJober interface {
 	// AddBatch adds a new batch to a job by sending a POST request to the following URI.
 	// The request body contains a list of records for processing.
-	AddBatch(batch []byte) (BatchI, error)
+	AddBatch(batch []byte) (Batcher, error)
 
 	// Close the job, starts executing the batches.
 	Close() (err error)
@@ -291,7 +291,7 @@ func (forceAPI *API) CreateBulkJob(
 	contentType ContentType,
 	operation Operation,
 	mode ConcurrencyMode,
-) (BulkJobI, error) {
+) (BulkJober, error) {
 	uri := fmt.Sprintf(`/services/async/%s/job`, strings.TrimPrefix(forceAPI.apiVersion, `v`))
 
 	req := &BulkJobReq{
@@ -313,7 +313,7 @@ func (forceAPI *API) CreateBulkJob(
 
 // AddBatch adds a new batch to a job by sending a POST request to the following URI.
 // The request body contains a list of records for processing.
-func (b *BulkJob) AddBatch(batch []byte) (BatchI, error) {
+func (b *BulkJob) AddBatch(batch []byte) (Batcher, error) {
 	uri := fmt.Sprintf(`/services/async/%.1f/job/%s/batch`, b.APIVersion, b.ID)
 
 	var resp Batch
@@ -445,8 +445,8 @@ type Batch struct {
 	ApexProcessingTime      int64  `json:"apexProcessingTime,omitempty"`      // The number of milliseconds taken to process triggers and other processes related to the batch data.
 }
 
-// BatchI interface for Batch api
-type BatchI interface {
+// Batcher interface for Batch api
+type Batcher interface {
 	// Info gets information about an existing batch.
 	Info() (err error)
 

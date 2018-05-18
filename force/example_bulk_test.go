@@ -92,17 +92,17 @@ func Example_Bulk() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		switch batch.State {
+		switch batch.GetState() {
 		case force.BatchStateCompleted:
-			if batch.NumberRecordsFailed > 0 {
+			if batch.GetNumberRecordsFailed() > 0 {
 				log.Errorf("some records failed during processing: %d",
 					job.NumberRecordsFailed)
 			}
-    			break 
-    		case force.BatchStateFailed:
+			break
+		case force.BatchStateFailed:
 			log.Error("job failed")
 			break
-    		}
+		}
 		time.Sleep(time.Second * 15)
 	}
 }
