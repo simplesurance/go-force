@@ -196,21 +196,23 @@ func (forceAPI *API) request(method, path string, params url.Values, headers htt
 		}
 	}
 
+	// Sometimes no response is expected. For example delete and update. We still have to make sure an error wasn't returned.
+	if out == nil {
+		return nil
+	}
+
 	// Attempt to parse response into out
-	var objectUnmarshalErr error
-	if out != nil {
-		objectUnmarshalErr = forcejson.Unmarshal(respBytes, out)
-		if objectUnmarshalErr == nil {
-			return nil
+	switch v := out.(type) {
+	case *[]byte:
+		// we don't want to parse response as json in this case simply copy the value to out
+		*v = respBytes
+	default:
+		if err := forcejson.Unmarshal(respBytes, out); err != nil {
+			// Not a force.com api error. Just an unmarshalling error.
+			return fmt.Errorf("Unable to unmarshal response to object: %v", err)
 		}
 	}
 
-	if objectUnmarshalErr != nil {
-		// Not a force.com api error. Just an unmarshalling error.
-		return fmt.Errorf("Unable to unmarshal response to object: %v", objectUnmarshalErr)
-	}
-
-	// Sometimes no response is expected. For example delete and update. We still have to make sure an error wasn't returned.
 	return nil
 }
 
